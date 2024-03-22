@@ -31,60 +31,40 @@ const style = {
 };
 
 function lessonPage() {
-  const [title, setTitle] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [xpLevel, setXpLevel] = React.useState("");
-  const [language, setLanguage] = React.useState("");
-  const [lessonOrder, setLessonOrder] = React.useState("");
-  const [category, setCategory] = React.useState("");
-  const [videoList, setVideoList] = React.useState("");
-  const [articleList, setArticleList] = React.useState("");
-  const [quizList, setQuizList] = React.useState("");
-  const [creatorId, setCreatorId] = React.useState("");
-
-  let [uTitle, setUTitle] = React.useState("");
-  let [uDescription, setUDescription] = React.useState("");
-  let [uXpLevel, setUXpLevel] = React.useState("");
-  let [uLanguage, setULanguage] = React.useState("");
-  let [uLessonOrder, setULessonOrder] = React.useState("");
-  let [uCategory, setUCategory] = React.useState("");
-  let [uVideoList, setUVideoList] = React.useState("");
-  let [uArticleList, setUArticleList] = React.useState("");
-  let [uQuizList, setUQuizList] = React.useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [xpLevel, setXpLevel] = useState("");
+  const [language, setLanguage] = useState("");
+  const [lessonOrder, setLessonOrder] = useState("");
+  const [category, setCategory] = useState("");
+  const [videoList, setVideoList] = useState("");
+  const [articleList, setArticleList] = useState("");
+  const [quizList, setQuizList] = useState("");
 
   const [lessons, setLessons] = useState(null);
-  const [formattedLessons, setFormattedLessons] = React.useState(null);
-  const [currentDeleteId, setCurrentDeleteId] = React.useState("");
-  const [currentUpdateId, setCurrentUpdateId] = React.useState("");
-  const [currentUpdateObject, setCurrentUpdateObject] = React.useState("");
+  const [formattedLessons, setFormattedLessons] = useState(null);
+  const [currentDeleteId, setCurrentDeleteId] = useState("");
+  const [currentUpdateId, setCurrentUpdateId] = useState("");
+  const [currentUpdateObject, setCurrentUpdateObject] = useState("");
 
-  const [titleError, setTitleError] = React.useState("");
-  const [descriptionError, setDescriptionError] = React.useState("");
-  const [xpLevelError, setXpLevelError] = React.useState("");
-  const [languageError, setLanguageError] = React.useState("");
-  const [lessonOrderError, setLessonOrderError] = React.useState("");
-  const [categoryError, setCategoryError] = React.useState("");
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [xpLevelError, setXpLevelError] = useState("");
+  const [lessonOrderError, setLessonOrderError] = useState("");
   const [userData, setUserData] = useState({ user: {} });
-  // uTitle = currentUpdateObject[0].title;
-  // uDescription = currentUpdateObject[0].description;
-  // uXpLevel = currentUpdateObject[0].xpLevel;
-  // uLanguage = currentUpdateObject[0].language;
-  // uLessonOrder = currentUpdateObject[0].lessonOrder;
-  // uCategory = currentUpdateObject[0].category;
-  // uVideoList = currentUpdateObject[0].videoList;
-  // uArticleList = currentUpdateObject[0].articleList;
-  // uQuizList = currentUpdateObject[0].quizList;
+  const [isLessonUpdated, setIsLessonUpdated] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
   };
 
   //created success modal
-  const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const handleSuccessModalOpen = () => {
     setOpenSuccessModal(true);
   };
@@ -93,7 +73,7 @@ function lessonPage() {
   };
 
   //Delete modal
-  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const handleDeleteModalOpen = () => {
     setOpenDeleteModal(true);
   };
@@ -102,8 +82,7 @@ function lessonPage() {
   };
 
   //handle Update Confirm Modal Close
-  const [openUpdateConfirmModal, setOpenUpdateConfirmModal] =
-    React.useState(false);
+  const [openUpdateConfirmModal, setOpenUpdateConfirmModal] = useState(false);
   const handleUpdateConfirmModalOpen = () => {
     setOpenUpdateConfirmModal(true);
   };
@@ -112,7 +91,7 @@ function lessonPage() {
   };
 
   //Update form modal
-  const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const handleUpdateModalOpen = (id) => {
     setCurrentUpdateObject(lessons.filter((item) => item._id === id));
     setOpenUpdateModal(true);
@@ -122,8 +101,7 @@ function lessonPage() {
   };
 
   //Update Success modal
-  const [openUpdateSuccessModal, setOpenUpdateSuccessModal] =
-    React.useState(false);
+  const [openUpdateSuccessModal, setOpenUpdateSuccessModal] = useState(false);
   const handleUpdateSuccessModalOpen = () => {
     setOpenUpdateSuccessModal(true);
   };
@@ -132,41 +110,43 @@ function lessonPage() {
   };
 
   //fetch all lessons
-  const fetchLessons = async () => {};
+  const fetchLessons = async () => {
+    if (userData && userData.user && userData.user._id) {
+      const response = await Axioss.get(
+        `http://localhost:7000/api/lesson/creator/${userData.user._id}`
+      )
+        .then((res) => {
+          setLessons(res.data);
+
+          // Transform the response data into the desired format
+          const lessonsFormatted = res.data.map((lesson) => ({
+            id: lesson._id,
+            title: lesson.title,
+            description: lesson.description,
+            category: lesson.category,
+            xpLevel: lesson.xpLevel,
+            language: lesson.language,
+          }));
+
+          setFormattedLessons(lessonsFormatted);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  };
 
   useEffect(() => {
     Axioss.get("api/user/getUserProfile")
       .then(async (res) => {
-        console.log(
-          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          res.data.user._id
-        );
-        const response = await Axioss.get(
-          `http://localhost:7000/api/lesson/creator/${res.data.user._id}`
-        );
-
-        setLessons(response.data);
-
-        // Transform the response data into the desired format
-        const lessonsFormatted = response.data.map((lesson) => ({
-          id: lesson._id,
-          title: lesson.title,
-          description: lesson.description,
-          category: lesson.category,
-          xpLevel: lesson.xpLevel,
-          language: lesson.language,
-        }));
-        setFormattedLessons(lessonsFormatted);
-        console.log(response.data); // Access the response data here
+        console.log("res", res.data);
         setUserData(res.data);
+        fetchLessons();
       })
       .catch((error) => {
         console.error(error); // Handle any errors here
       });
   }, []);
-
-  console.log("Lessons:", lessons);
-  console.log("Formatted Lessons:", formattedLessons);
 
   //table columns
   const columns = [
@@ -182,7 +162,6 @@ function lessonPage() {
       renderCell: (params) => (
         <EditIcon
           onClick={() => {
-            console.log("Current Update ID:", params.row.id);
             setCurrentUpdateId(params.row.id);
             handleUpdateModalOpen(params.row.id);
           }}
@@ -206,20 +185,8 @@ function lessonPage() {
     },
   ];
 
-  console.log("Current Update set ID:", currentUpdateId);
-
   //submit the selected values
   const handleSubmitCreateLesson = async () => {
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Experience Level:", xpLevel);
-    console.log("Language:", language);
-    console.log("Category:", category);
-    console.log("Lesson Order:", lessonOrder);
-    console.log("Video Links:", videoList);
-    console.log("Article Links:", articleList);
-    console.log("Quiz Links:", quizList);
-
     const videoArray = videoList.split(",").map((value) => value.trim());
     const articleArray = articleList.split(",").map((value) => value.trim());
     const quizArray = quizList.split(",").map((value) => value.trim());
@@ -255,27 +222,14 @@ function lessonPage() {
       articleList: articleArray,
       quizList: quizArray,
       creatorId: userData.user._id,
-    });
-
-    // if (title.length < 3) {
-    //   setTitleError("Title must be at least 3 characters long.");
-    //   return;
-    // }
-
-    // if (description.length < 10) {
-    //   setDescriptionError("Description must be at least 10 characters long.");
-    //   return;
-    // }
-
-    // if (isNaN(lessonOrder) || lessonOrder < 1) {
-    //   setLessonOrderError("Please enter a valid number");
-    // }
-
-    // if (!xpLevel) {
-    //   setXpLevelError("Please select an experience level.");
-    //   alert("Please select an experience level.");
-    //   return;
-    // }
+    })
+      .then((response) => {
+        console.log(response);
+        setIsLessonUpdated(!isLessonUpdated);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     if (true) {
       handleClose();
@@ -283,25 +237,27 @@ function lessonPage() {
     }
   };
 
+  useEffect(() => {
+    fetchLessons();
+  }, [userData, isLessonUpdated]);
+
   //Delete a lesson
   const handleDelete = async () => {
-    await Axios.delete(`http://localhost:7000/api/lesson/${currentDeleteId}`);
-    console.log("Deleted ID:", currentDeleteId);
+    await Axios.delete(`http://localhost:7000/api/lesson/${currentDeleteId}`)
+      .then((response) => {
+        console.log(response);
+        setIsLessonUpdated(!isLessonUpdated);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     handleDeleteModalClose();
     fetchLessons();
   };
 
   //Update a lesson
   const handleUpdate = async () => {
-    // console.log("Title:", title);
-    // console.log("Description:", description);
-    // console.log("Experience Level:", xpLevel);
-    // console.log("Language:", language);
-    // console.log("Lesson Order:", lessonOrder);
-    // console.log("Video Links:", videoList);
-    // console.log("Article Links:", articleList);
-    // console.log("Quiz Links:", quizList);
-
     const videoArray = videoList.split(",").map((value) => value.trim());
     const articleArray = articleList.split(",").map((value) => value.trim());
     const quizArray = quizList.split(",").map((value) => value.trim());
@@ -351,7 +307,14 @@ function lessonPage() {
       videoList: videoArray,
       articleList: articleArray,
       quizList: quizArray,
-    });
+    })
+      .then((response) => {
+        console.log(response);
+        setIsLessonUpdated(!isLessonUpdated);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     if (true) {
       handleUpdateModalClose();
@@ -359,16 +322,6 @@ function lessonPage() {
       handleUpdateSuccessModalOpen();
     }
   };
-
-  // console.log("Title", uTitle);
-  // console.log("Description", uDescription);
-  // console.log("Experience Level", uXpLevel);
-  // console.log("Language", uLanguage);
-  // console.log("Lesson Order", uLessonOrder);
-  // console.log("Category", uCategory);
-  //console.log("Video Links", currentUpdateObject[0].videoList);
-  // console.log("Article Links", uArticleList);
-  // console.log("Quiz Links", uQuizList);
 
   return (
     <div className=" pb-40">
@@ -385,18 +338,16 @@ function lessonPage() {
           <div className="lg:flex justify-center">
             <div className="lg:w-3/3 mx-2"></div>
             {formattedLessons ? (
-              <>
-                <DataGrid
-                  rows={formattedLessons}
-                  columns={columns}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 5 },
-                    },
-                  }}
-                  pageSizeOptions={[5, 10]}
-                />
-              </>
+              <DataGrid
+                rows={formattedLessons}
+                columns={columns}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 5 },
+                  },
+                }}
+                pageSizeOptions={[5, 10]}
+              />
             ) : (
               <Spinner className="h-8 w-8" />
             )}
